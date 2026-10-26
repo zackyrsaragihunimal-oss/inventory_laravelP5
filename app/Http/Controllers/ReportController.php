@@ -1,0 +1,4 @@
+<?php
+namespace App\Http\Controllers;
+use App\Models\Category; use App\Models\Product; use App\Models\StockMovement;
+class ReportController extends Controller { public function index(){ $stats=['products'=>Product::count(),'units'=>Product::sum('stock'),'value'=>Product::selectRaw('COALESCE(SUM(stock * price),0) AS total')->value('total'),'in'=>StockMovement::where('type','IN')->sum('quantity'),'out'=>StockMovement::where('type','OUT')->sum('quantity')]; $categories=Category::with(['products'])->withCount('products')->orderBy('name')->get(); $categories->each(function($c){$c->inventory_value=$c->products->sum(fn($p)=>$p->stock*$p->price);$c->total_stock=$c->products->sum('stock');}); return view('reports.index',compact('stats','categories')); } }

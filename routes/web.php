@@ -1,0 +1,6 @@
+<?php
+use App\Http\Controllers\{AuthController,CategoryController,DashboardController,ProductController,ReportController,StockController,SupplierController,UserController}; use Illuminate\Support\Facades\Route;
+Route::get('/',fn()=>auth()->check()?redirect()->route('dashboard'):redirect()->route('login'));
+Route::middleware('guest')->group(function(){Route::get('/login',[AuthController::class,'showLogin'])->name('login');Route::post('/login',[AuthController::class,'login'])->name('login.store');});
+Route::post('/logout',[AuthController::class,'logout'])->middleware('auth')->name('logout');
+Route::middleware('auth')->group(function(){Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');Route::resource('products',ProductController::class);Route::get('/stock',[StockController::class,'index'])->name('stock.index');Route::post('/stock',[StockController::class,'store'])->name('stock.store');Route::get('/reports',[ReportController::class,'index'])->name('reports.index');Route::middleware('admin')->group(function(){Route::resource('categories',CategoryController::class);Route::resource('suppliers',SupplierController::class);Route::get('/users',[UserController::class,'index'])->name('users.index');Route::post('/users',[UserController::class,'store'])->name('users.store');});});
